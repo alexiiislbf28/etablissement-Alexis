@@ -320,6 +320,128 @@
     90% { opacity: 1; }
     100% { opacity: 0; transform: translateY(110vh) rotate(360deg); }
   }
+
+  /* ---------- STAMP ---------- */
+  .stamp {
+    position: absolute;
+    z-index: 102;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 15vw;
+    max-font-size: 70px;
+    letter-spacing: 0.05em;
+    color: var(--gold-soft);
+    border: 6px double var(--gold-soft);
+    padding: 14px 34px;
+    border-radius: 14px;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: scale(2.4) rotate(-10deg);
+    transition: opacity 0.35s ease, transform 0.35s cubic-bezier(.34,1.56,.64,1);
+    mix-blend-mode: screen;
+    white-space: nowrap;
+    text-align: center;
+  }
+  .stamp.show {
+    opacity: 0.92;
+    transform: scale(1) rotate(-8deg);
+  }
+  .stamp.fadeout {
+    opacity: 0;
+    transform: scale(0.94) rotate(-8deg);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  @media (max-width: 480px) {
+    .stamp { font-size: 42px; padding: 10px 20px; }
+  }
+
+  /* ---------- COUNTDOWN ---------- */
+  #countdownScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: radial-gradient(circle at 50% -10%, var(--bordeaux-light), var(--bordeaux) 45%, var(--bordeaux-deep) 100%);
+    padding: 30px;
+  }
+  #countdownScreen.active { display: flex; }
+  .countdown-inner { max-width: 460px; }
+  .countdown-eyebrow {
+    font-family: 'Poppins', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--gold-soft);
+    margin-bottom: 14px;
+    opacity: 0;
+    animation: ctFadeIn 0.8s ease forwards;
+    animation-delay: 0.1s;
+  }
+  .countdown-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    color: var(--gold);
+    margin: 0 0 30px 0;
+    line-height: 1.4;
+    opacity: 0;
+    animation: ctFadeIn 0.8s ease forwards;
+    animation-delay: 0.25s;
+  }
+  .countdown-grid {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    margin-bottom: 30px;
+    opacity: 0;
+    animation: ctFadeIn 0.8s ease forwards;
+    animation-delay: 0.4s;
+  }
+  .countdown-unit {
+    background: rgba(212,175,106,0.08);
+    border: 1px solid rgba(212,175,106,0.35);
+    border-radius: 12px;
+    padding: 16px 10px;
+    min-width: 68px;
+  }
+  .countdown-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    color: var(--gold-soft);
+    line-height: 1;
+  }
+  .countdown-label {
+    font-family: 'Poppins', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--text-soft);
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+  .countdown-note {
+    font-style: italic;
+    font-size: 16px;
+    color: rgba(250,243,228,0.75);
+    line-height: 1.6;
+    opacity: 0;
+    animation: ctFadeIn 0.8s ease forwards;
+    animation-delay: 0.55s;
+  }
+  .countdown-ref {
+    font-family: 'Poppins', sans-serif;
+    font-size: 10.5px;
+    letter-spacing: 0.12em;
+    color: rgba(250,243,228,0.3);
+    margin-top: 34px;
+    opacity: 0;
+    animation: ctFadeIn 0.8s ease forwards;
+    animation-delay: 0.7s;
+  }
+  @keyframes ctFadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 </style>
 </head>
 <body>
@@ -336,7 +458,7 @@
     </div>
   </div>
 
-  <div class="wrap">
+  <div class="wrap" id="mainWrap">
     <div class="header">
       <div class="eyebrow fade-item" style="transition-delay:0.1s">RÉSERVATION EXCLUSIVE</div>
       <h1 class="fade-item" style="transition-delay:0.25s">Établissement<br>Alexis</h1>
@@ -402,6 +524,22 @@
 
   <div id="processOverlay">
     <div class="process-text" id="processText"></div>
+    <div class="stamp" id="stamp">Réservé ✓</div>
+  </div>
+
+  <div id="countdownScreen">
+    <div class="countdown-inner">
+      <div class="countdown-eyebrow">C'EST NOTÉ</div>
+      <div class="countdown-title" id="countdownTitle">Il reste avant notre soirée</div>
+      <div class="countdown-grid" id="countdownGrid">
+        <div class="countdown-unit"><div class="countdown-number" id="cdDays">0</div><div class="countdown-label">Jours</div></div>
+        <div class="countdown-unit"><div class="countdown-number" id="cdHours">00</div><div class="countdown-label">Heures</div></div>
+        <div class="countdown-unit"><div class="countdown-number" id="cdMinutes">00</div><div class="countdown-label">Min</div></div>
+        <div class="countdown-unit"><div class="countdown-number" id="cdSeconds">00</div><div class="countdown-label">Sec</div></div>
+      </div>
+      <p class="countdown-note" id="countdownNote">Garde cet onglet ouvert, il patiente avec toi jusqu'au jour J 💛</p>
+      <p class="countdown-ref" id="countdownRef">RÉSERVATION N° 0000</p>
+    </div>
   </div>
 
 <script>
@@ -451,6 +589,39 @@
     setTimeout(() => clearInterval(interval), durationMs);
   }
 
+  let countdownInterval = null;
+
+  function startCountdown(targetDate, activityLabel) {
+    document.getElementById("mainWrap").style.display = "none";
+    document.getElementById("processOverlay").classList.remove("active");
+    const screen = document.getElementById("countdownScreen");
+    screen.classList.add("active");
+    document.getElementById("countdownTitle").textContent = `Il reste avant notre ${activityLabel.toLowerCase()}`;
+    document.getElementById("countdownRef").textContent = `RÉSERVATION N° ${refNum}`;
+
+    function tick() {
+      const now = new Date();
+      const diff = targetDate - now;
+      if (diff <= 0) {
+        clearInterval(countdownInterval);
+        document.getElementById("countdownTitle").textContent = "C'est aujourd'hui 💛";
+        document.getElementById("countdownGrid").style.display = "none";
+        document.getElementById("countdownNote").textContent = "Profitez-en, tous les deux.";
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+      document.getElementById("cdDays").textContent = days;
+      document.getElementById("cdHours").textContent = String(hours).padStart(2, "0");
+      document.getElementById("cdMinutes").textContent = String(minutes).padStart(2, "0");
+      document.getElementById("cdSeconds").textContent = String(seconds).padStart(2, "0");
+    }
+    tick();
+    countdownInterval = setInterval(tick, 1000);
+  }
+
   document.getElementById("resaForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
@@ -483,8 +654,11 @@
     const body = bodyLines.join("\n");
     const mailto = `mailto:${TO_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
+    const targetDate = new Date(`${date}T${time ? time : "12:00"}:00`);
+
     const overlay = document.getElementById("processOverlay");
     const textEl = document.getElementById("processText");
+    const stampEl = document.getElementById("stamp");
     const steps = [
       "Recherche d'une table…",
       "Consultation du Chef…",
@@ -502,9 +676,23 @@
         textEl.classList.add("show");
         if (i === steps.length - 1) {
           spawnHearts(2200);
+
+          // open mail app right away, while the stamp plays
+          location.assign(mailto);
+
           setTimeout(() => {
-            location.assign(mailto);
-          }, 2000);
+            textEl.classList.remove("show");
+            stampEl.classList.add("show");
+          }, 700);
+
+          setTimeout(() => {
+            stampEl.classList.remove("show");
+            stampEl.classList.add("fadeout");
+          }, 2100);
+
+          setTimeout(() => {
+            startCountdown(targetDate, activity);
+          }, 2750);
         } else {
           i++;
           setTimeout(showStep, 1200);
